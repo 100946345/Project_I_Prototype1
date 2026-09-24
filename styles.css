@@ -5,7 +5,7 @@
   --text:#e6eef8;
   --max-width:1100px;
 
-  
+
 }
 
 /* Basic reset */
@@ -32,17 +32,17 @@ body{
 /* Map stage */
 .map-stage{
   position:relative;
-  height:70vh;
-  min-height:420px;
+  height:82vh;           /* increased from 70vh -> makes the window taller */
+  min-height:520px;      /* increased min height for small screens */
   display:flex;
   align-items:center;
   justify-content:center;
   overflow:hidden;
-  margin:20px auto;
+  margin:28px auto;      /* slightly more breathing room */
   max-width:var(--max-width);
   border-radius:12px;
   background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.15));
-  box-shadow:0 8px 30px rgba(2,6,23,0.6);
+  box-shadow:0 10px 36px rgba(2,6,23,0.6);
 }
 
 /* Viewport that holds layered images */
@@ -63,7 +63,7 @@ body{
   will-change:transform, opacity;
   transition:transform 0.35s cubic-bezier(.22,.9,.35,1), opacity 0.35s ease;
   max-width:none;
-  width:140%;
+  width:160%;            /* increased from 140% to keep coverage when taller */
   height:auto;
   pointer-events:none;
 }
