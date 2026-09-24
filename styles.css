@@ -4,8 +4,6 @@
   --accent:#ffb703;
   --text:#e6eef8;
   --max-width:1100px;
-
-
 }
 
 /* Basic reset */
@@ -29,16 +27,16 @@ body{
 .brand h1{font-size:1.25rem;letter-spacing:0.02em}
 .brand .subtitle{color:#9fb0d6;font-size:0.9rem}
 
-/* Map stage */
+/* Map stage - increased height for more scroll room */
 .map-stage{
   position:relative;
-  height:82vh;           /* increased from 70vh -> makes the window taller */
-  min-height:520px;      /* increased min height for small screens */
+  height:90vh;           /* increased to 90vh for a taller window */
+  min-height:640px;      /* larger min-height to ensure visible area on small screens */
   display:flex;
   align-items:center;
   justify-content:center;
   overflow:hidden;
-  margin:28px auto;      /* slightly more breathing room */
+  margin:28px auto;
   max-width:var(--max-width);
   border-radius:12px;
   background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.15));
@@ -61,9 +59,9 @@ body{
   transform-origin:center center;
   transform:translate(-50%,-50%) scale(1);
   will-change:transform, opacity;
-  transition:transform 0.35s cubic-bezier(.22,.9,.35,1), opacity 0.35s ease;
+  transition:transform 0.45s cubic-bezier(.22,.9,.35,1), opacity 0.35s ease;
   max-width:none;
-  width:160%;            /* increased from 140% to keep coverage when taller */
+  width:180%;            /* increased to 180% so the image fills the taller viewport */
   height:auto;
   pointer-events:none;
 }
@@ -90,19 +88,29 @@ body{
 
 /* Content blocks to create scroll space */
 .content-block{
-  padding:80px 20px;
+  padding:180px 20px; /* increased padding to create more scroll distance */
   max-width:var(--max-width);
   margin:0 auto;
 }
 .content-block .container{background:var(--card);padding:24px;border-radius:10px}
 .content-block h3{margin-bottom:12px;color:var(--accent)}
 
+/* Spacer utility for extra scroll room */
+.scroll-spacer{
+  height:55vh;
+  min-height:360px;
+  width:100%;
+  background:transparent;
+}
+
 /* Footer */
 .site-footer{padding:40px 20px;text-align:center;color:#9fb0d6}
 
 /* Responsive tweaks */
 @media (max-width:800px){
-  .map-stage{height:60vh}
-  .map-layer{width:200%}
+  .map-stage{height:70vh; min-height:420px}
+  .map-layer{width:220%}
   .map-caption{left:12px;right:12px}
+  .content-block{padding:100px 16px}
+  .scroll-spacer{height:35vh; min-height:220px}
 }
