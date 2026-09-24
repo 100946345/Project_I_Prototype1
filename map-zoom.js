@@ -61,9 +61,9 @@
     // Expand the trigger window so transitions are slower and easier to see
     offsets = {
       stageTop,
-      introTop: introTopRaw - vh * 0.45,       // start earlier
-      cvTop: cvTopRaw + vh * 0.35,             // end later
-      santiagoTop: santiagoTopRaw + vh * 0.55, // extend further
+      introTop: introTopRaw - vh * 0.65,
+      cvTop: cvTopRaw + vh * 0.65,
+      santiagoTop: santiagoTopRaw + vh * 0.85,
       stageHeight: stageRect.height
     };
   }

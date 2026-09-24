@@ -99,8 +99,8 @@ body{
 
 /* Spacer utility for extra scroll room */
 .scroll-spacer{
-  height:70vh;
-  min-height:480px;
+  height:140vh;
+  min-height:1000px;
   width:100%;
   background:transparent;
 }
