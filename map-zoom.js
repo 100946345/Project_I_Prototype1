@@ -1,6 +1,9 @@
 // map-zoom.js
 // Scroll-driven zoom: Africa -> Cape Verde -> Santiago
 (function () {
+  // Debug flag (set to true to enable live logging)
+  let debugEnabled = true;
+
   // Query elements (will warn if missing)
   const mapStage = document.getElementById('mapStage');
   const baseMap = document.getElementById('baseMap');
@@ -117,6 +120,22 @@
     } else {
       mapTitle.textContent = 'Africa — Cape Verde';
     }
+
+    // Debug logging (throttled by rAF via handleScroll)
+    if (debugEnabled) {
+      // Keep logs concise
+      console.log(
+        '[map-debug]',
+        'y:', Math.round(y),
+        'p1:', p1.toFixed(2),
+        'p2:', p2.toFixed(2),
+        'offsets:', {
+          introTop: Math.round(offsets.introTop),
+          cvTop: Math.round(offsets.cvTop),
+          santiagoTop: Math.round(offsets.santiagoTop)
+        }
+      );
+    }
   }
 
   // rAF throttle
@@ -167,6 +186,22 @@
       });
       ro.observe(mapStage);
     }
+
+    // Expose debug helpers to console for easy toggling
+    window.enableMapDebug = function () {
+      debugEnabled = true;
+      console.log('map-zoom debug: enabled');
+    };
+    window.disableMapDebug = function () {
+      debugEnabled = false;
+      console.log('map-zoom debug: disabled');
+    };
+    window.debugOffsets = function () {
+      computeOffsets();
+      console.log('offsets', offsets);
+      const y = window.scrollY + window.innerHeight * 0.5;
+      console.log('y', Math.round(y), 'p1', progressBetween(offsets.introTop, offsets.cvTop, y), 'p2', progressBetween(offsets.cvTop, offsets.santiagoTop, y));
+    };
   }
 
   // Start when DOM is ready (script tag uses defer in HTML)
