@@ -27,16 +27,18 @@ body{
 .brand h1{font-size:1.25rem;letter-spacing:0.02em}
 .brand .subtitle{color:#9fb0d6;font-size:0.9rem}
 
-/* Map stage - increased height for more scroll room */
+/* Map stage - sticky so it remains visible while scrolling */
 .map-stage{
-  position:relative;
-  height:95vh;           /* taller viewport so image shows more vertically */
-  min-height:720px;      /* ensures visible area on smaller screens */
+  position:sticky;
+  top:0;
+  z-index:40;
+  height:92vh;           /* tall viewport so image shows more vertically */
+  min-height:640px;      /* ensures visible area on smaller screens */
   display:flex;
   align-items:center;
   justify-content:center;
   overflow:hidden;
-  margin:28px auto;
+  margin:0 auto 28px;    /* top margin removed so sticky aligns to top */
   max-width:var(--max-width);
   border-radius:12px;
   background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.15));
@@ -59,7 +61,7 @@ body{
   transform-origin:center center;
   transform:translate(-50%,-50%) scale(1);
   will-change:transform, opacity;
-  transition:transform 0.45s cubic-bezier(.22,.9,.35,1), opacity 0.35s ease;
+  transition:transform 0.55s cubic-bezier(.22,.9,.35,1), opacity 0.35s ease;
   max-width:none;
   width:200%;            /* larger so the image fills the taller area */
   height:auto;
@@ -77,8 +79,8 @@ body{
   position:absolute;
   left:24px;
   bottom:18px;
-  z-index:10;
-  background:rgba(2,6,23,0.45);
+  z-index:50;
+  background:rgba(2,6,23,0.55);
   padding:12px 16px;
   border-radius:8px;
   backdrop-filter: blur(6px);
@@ -87,7 +89,6 @@ body{
 .map-caption p{color:#b8cbe6;font-size:0.9rem}
 
 /* Content blocks to create scroll space */
-/* Give content blocks more vertical space so scroll triggers run */
 .content-block{
   padding:220px 20px;    /* bigger padding to create scroll distance */
   max-width:var(--max-width);
@@ -104,13 +105,20 @@ body{
   background:transparent;
 }
 
+/* Ensure content below sticky map is not hidden */
+.map-stage + .scroll-spacer{ /* keeps enough gap so content starts below the sticky map */
+  height:72vh;
+  min-height:520px;
+}
+
 /* Footer */
 .site-footer{padding:40px 20px;text-align:center;color:#9fb0d6}
 
 /* Responsive adjustments */
 @media (max-width:800px){
-  .map-stage{height:75vh; min-height:480px}
+  .map-stage{position:relative;height:70vh; min-height:420px} /* disable sticky on small screens */
   .map-layer{width:240%}
   .content-block{padding:120px 16px}
   .scroll-spacer{height:40vh; min-height:260px}
+  .map-stage + .scroll-spacer{height:42vh; min-height:280px}
 }

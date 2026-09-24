@@ -14,7 +14,7 @@
     </div>
   </header>
 
-  <main>
+  <main role="main">
     <!-- Hero / Map stage -->
     <section class="map-stage" id="mapStage" aria-label="Interactive map showing Africa and Cape Verde">
       <div class="map-viewport">
@@ -33,6 +33,9 @@
         <p id="mapSubtitle">Santiago Island</p>
       </div>
     </section>
+
+    <!-- Spacer added immediately after the map to guarantee scroll room -->
+    <section class="scroll-spacer" aria-hidden="true"></section>
 
     <!-- Content sections to create scroll space and trigger animations -->
     <section class="content-block" id="intro">
@@ -55,15 +58,13 @@
         <p>Details about Santiago.</p>
       </div>
     </section>
-    
-    <section class="scroll-spacer" aria-hidden="true"></section>
-
 
     <footer class="site-footer">
       <p>demo code.</p>
     </footer>
   </main>
 
-  <script src="map-zoom.js"></script>
+  <!-- Defer script so DOM elements exist before the JS runs -->
+  <script src="map-zoom.js" defer></script>
 </body>
 </html>
