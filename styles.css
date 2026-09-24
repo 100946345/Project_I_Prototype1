@@ -30,8 +30,8 @@ body{
 /* Map stage - increased height for more scroll room */
 .map-stage{
   position:relative;
-  height:90vh;           /* increased to 90vh for a taller window */
-  min-height:640px;      /* larger min-height to ensure visible area on small screens */
+  height:95vh;           /* taller viewport so image shows more vertically */
+  min-height:720px;      /* ensures visible area on smaller screens */
   display:flex;
   align-items:center;
   justify-content:center;
@@ -61,7 +61,7 @@ body{
   will-change:transform, opacity;
   transition:transform 0.45s cubic-bezier(.22,.9,.35,1), opacity 0.35s ease;
   max-width:none;
-  width:180%;            /* increased to 180% so the image fills the taller viewport */
+  width:200%;            /* larger so the image fills the taller area */
   height:auto;
   pointer-events:none;
 }
@@ -87,8 +87,9 @@ body{
 .map-caption p{color:#b8cbe6;font-size:0.9rem}
 
 /* Content blocks to create scroll space */
+/* Give content blocks more vertical space so scroll triggers run */
 .content-block{
-  padding:180px 20px; /* increased padding to create more scroll distance */
+  padding:220px 20px;    /* bigger padding to create scroll distance */
   max-width:var(--max-width);
   margin:0 auto;
 }
@@ -97,8 +98,8 @@ body{
 
 /* Spacer utility for extra scroll room */
 .scroll-spacer{
-  height:55vh;
-  min-height:360px;
+  height:70vh;
+  min-height:480px;
   width:100%;
   background:transparent;
 }
@@ -106,11 +107,10 @@ body{
 /* Footer */
 .site-footer{padding:40px 20px;text-align:center;color:#9fb0d6}
 
-/* Responsive tweaks */
+/* Responsive adjustments */
 @media (max-width:800px){
-  .map-stage{height:70vh; min-height:420px}
-  .map-layer{width:220%}
-  .map-caption{left:12px;right:12px}
-  .content-block{padding:100px 16px}
-  .scroll-spacer{height:35vh; min-height:220px}
+  .map-stage{height:75vh; min-height:480px}
+  .map-layer{width:240%}
+  .content-block{padding:120px 16px}
+  .scroll-spacer{height:40vh; min-height:260px}
 }

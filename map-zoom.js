@@ -31,9 +31,9 @@
     const stageTop = window.scrollY + stageRect.top;
     offsets = {
       stageTop,
-      introTop: intro.getBoundingClientRect().top + window.scrollY,
-      cvTop: cvInfo.getBoundingClientRect().top + window.scrollY,
-      santiagoTop: santiagoInfo.getBoundingClientRect().top + window.scrollY,
+      introTop: intro.getBoundingClientRect().top + window.scrollY - vh * 0.45,   // start earlier
+      cvTop: cvInfo.getBoundingClientRect().top + window.scrollY + vh * 0.45,    // end later
+      santiagoTop: santiagoInfo.getBoundingClientRect().top + window.scrollY + vh * 0.65,
       stageHeight: stageRect.height
     };
   }
