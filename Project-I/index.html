@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Cabo Verde — Scroll Zoom Demo</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="brand">
+      <h1>Africa Tourism Guide</h1>
+      <p class="subtitle">Cabo Verde — Interactive Map Demo</p>
+    </div>
+  </header>
+
+  <main>
+    <!-- Hero / Map stage -->
+    <section class="map-stage" id="mapStage" aria-label="Interactive map showing Africa and Cape Verde">
+      <div class="map-viewport">
+        <!-- Base map (Africa) -->
+        <img src="assets/africa-map.jpg" alt="Map of Africa with Cape Verde" class="map-layer base-map" id="baseMap" />
+
+        <!-- Cape Verde overlay (transparent PNG with CV highlighted) -->
+        <img src="assets/cape-verde-overlay.png" alt="" aria-hidden="true" class="map-layer overlay overlay-cv" id="cvOverlay" />
+
+        <!-- Santiago island overlay (transparent PNG zoomed to Santiago) -->
+        <img src="assets/santiago-overlay.png" alt="" aria-hidden="true" class="map-layer overlay overlay-santiago" id="santiagoOverlay" />
+      </div>
+
+      <div class="map-caption">
+        <h2 id="mapTitle">Africa — Cape Verde</h2>
+        <p id="mapSubtitle">Scroll to zoom into Cape Verde and then Santiago Island</p>
+      </div>
+    </section>
+
+    <!-- Content sections to create scroll space and trigger animations -->
+    <section class="content-block" id="intro">
+      <div class="container">
+        <h3>Welcome</h3>
+        <p>Introductory content goes here. This section provides context and creates scroll distance for the map animation.</p>
+      </div>
+    </section>
+
+    <section class="content-block" id="cv-info">
+      <div class="container">
+        <h3>Cape Verde</h3>
+        <p>Information about Cape Verde. As you scroll into this section, the map will zoom into Cape Verde.</p>
+      </div>
+    </section>
+
+    <section class="content-block" id="santiago-info">
+      <div class="container">
+        <h3>Santiago Island</h3>
+        <p>Details about Santiago. Scrolling here triggers the final zoom into Santiago island.</p>
+      </div>
+    </section>
+
+    <footer class="site-footer">
+      <p>Built from user-supplied notes and demo code.</p>
+    </footer>
+  </main>
+
+  <script src="map-zoom.js"></script>
+</body>
+</html>

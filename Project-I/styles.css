@@ -1,0 +1,106 @@
+:root{
+  --bg:#0f1724;
+  --card:#0b1220;
+  --accent:#ffb703;
+  --text:#e6eef8;
+  --max-width:1100px;
+}
+
+/* Basic reset */
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  font-family:Inter,system-ui,Segoe UI,Roboto,"Helvetica Neue",Arial;
+  background:linear-gradient(180deg,#071028 0%, #0b1220 100%);
+  color:var(--text);
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  line-height:1.5;
+}
+
+/* Header */
+.site-header{
+  padding:20px;
+  max-width:var(--max-width);
+  margin:0 auto;
+}
+.brand h1{font-size:1.25rem;letter-spacing:0.02em}
+.brand .subtitle{color:#9fb0d6;font-size:0.9rem}
+
+/* Map stage */
+.map-stage{
+  position:relative;
+  height:70vh;
+  min-height:420px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+  margin:20px auto;
+  max-width:var(--max-width);
+  border-radius:12px;
+  background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.15));
+  box-shadow:0 8px 30px rgba(2,6,23,0.6);
+}
+
+/* Viewport that holds layered images */
+.map-viewport{
+  position:relative;
+  width:100%;
+  height:100%;
+  overflow:hidden;
+}
+
+/* All map layers share these */
+.map-layer{
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform-origin:center center;
+  transform:translate(-50%,-50%) scale(1);
+  will-change:transform, opacity;
+  transition:transform 0.35s cubic-bezier(.22,.9,.35,1), opacity 0.35s ease;
+  max-width:none;
+  width:140%;
+  height:auto;
+  pointer-events:none;
+}
+
+/* Base map sits behind */
+.base-map{z-index:1;filter:contrast(1.02) saturate(1.05)}
+
+/* overlays on top */
+.overlay{z-index:2;opacity:0;}
+
+/* Caption */
+.map-caption{
+  position:absolute;
+  left:24px;
+  bottom:18px;
+  z-index:10;
+  background:rgba(2,6,23,0.45);
+  padding:12px 16px;
+  border-radius:8px;
+  backdrop-filter: blur(6px);
+}
+.map-caption h2{font-size:1.1rem;margin-bottom:4px}
+.map-caption p{color:#b8cbe6;font-size:0.9rem}
+
+/* Content blocks to create scroll space */
+.content-block{
+  padding:80px 20px;
+  max-width:var(--max-width);
+  margin:0 auto;
+}
+.content-block .container{background:var(--card);padding:24px;border-radius:10px}
+.content-block h3{margin-bottom:12px;color:var(--accent)}
+
+/* Footer */
+.site-footer{padding:40px 20px;text-align:center;color:#9fb0d6}
+
+/* Responsive tweaks */
+@media (max-width:800px){
+  .map-stage{height:60vh}
+  .map-layer{width:200%}
+  .map-caption{left:12px;right:12px}
+}
