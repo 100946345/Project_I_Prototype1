@@ -9,17 +9,12 @@
    ============================================================ */
 
 :root {
-
-  --bg: #07101d;
-  --bg-light: #0c1728;
-
-  --text: #edf4ff;
-  --muted: #9eacc1;
-
-  --accent: #ffb703;
-
-  --max-width: 1400px;
-
+    --bg: #07101d;
+    --bg-light: #0c1728;
+    --text: #edf4ff;
+    --muted: #9eacc1;
+    --accent: #ffb703;
+    --max-width: 1400px;
 }
 
 
@@ -28,51 +23,49 @@
    ============================================================ */
 
 * {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
 }
-
 
 html {
-  scroll-behavior: auto;
+    scroll-behavior: auto;
 }
-
 
 body {
+    min-height: 100%;
+    font-family:
+        Inter,
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Roboto,
+        Arial,
+        sans-serif;
 
-  min-height: 100%;
+    background:
+        radial-gradient(
+            circle at 50% 20%,
+            #12233a 0%,
+            var(--bg) 55%,
+            #030812 100%
+        );
 
-  font-family:
-    Inter,
-    system-ui,
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    Roboto,
-    Arial,
-    sans-serif;
+    color: var(--text);
+    line-height: 1.5;
 
-  background:
-    radial-gradient(
-      circle at 50% 20%,
-      #12233a 0%,
-      var(--bg) 55%,
-      #030812 100%
-    );
-
-  color: var(--text);
-
-  line-height: 1.5;
-
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 
+/* ============================================================
+   IMAGES
+   ============================================================ */
+
 img {
-  display: block;
+    display: block;
 }
 
 
@@ -81,50 +74,39 @@ img {
    ============================================================ */
 
 .site-header {
+    position: absolute;
 
-  position: absolute;
+    top: 0;
+    left: 50%;
 
-  top: 0;
-  left: 50%;
+    transform: translateX(-50%);
 
-  transform: translateX(-50%);
+    width: 100%;
+    max-width: var(--max-width);
 
-  width: 100%;
+    padding: 28px 32px;
 
-  max-width: var(--max-width);
+    z-index: 100;
 
-  padding: 28px 32px;
-
-  z-index: 100;
-
-  pointer-events: none;
-
+    pointer-events: none;
 }
-
 
 .brand h1 {
-
-  font-size: 1rem;
-
-  font-weight: 600;
-
-  letter-spacing: 0.04em;
-
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
 }
 
-
 .brand .subtitle {
+    margin-top: 3px;
 
-  margin-top: 3px;
+    font-size: 0.75rem;
 
-  font-size: 0.75rem;
+    color: var(--muted);
 
-  color: var(--muted);
+    letter-spacing: 0.08em;
 
-  letter-spacing: 0.08em;
-
-  text-transform: uppercase;
-
+    text-transform: uppercase;
 }
 
 
@@ -133,51 +115,68 @@ img {
    ============================================================ */
 
 .map-journey {
+    position: relative;
 
-  position: relative;
-
-  /*
-    More height = slower / more cinematic animation.
-  */
-  height: 430vh;
-
+    /*
+     * Controls how long the cinematic
+     * map animation lasts.
+     */
+    height: 430vh;
 }
 
+
+/* ============================================================
+   STICKY MAP
+   ============================================================ */
 
 .map-sticky {
+    position: sticky;
 
-  position: sticky;
+    top: 0;
 
-  top: 0;
+    width: 100%;
+    height: 100vh;
 
-  width: 100%;
-
-  height: 100vh;
-
-  overflow: hidden;
-
+    overflow: hidden;
 }
 
 
-/* =========================================================
+/* ============================================================
    MAP VIEWPORT
-   ========================================================= */
+   ============================================================ */
 
 .map-viewport {
     position: absolute;
+
     inset: 0;
+
     width: 100%;
     height: 100%;
+
     overflow: hidden;
+
     background: #06253d;
 }
 
-/* =========================================================
+
+/* ============================================================
    MAP LAYERS
-   ========================================================= */
+   ============================================================ */
 
 .map-layer {
     position: absolute;
+
+    /*
+     * IMPORTANT:
+     * The JavaScript camera uses
+     * translate(-50%, -50%).
+     *
+     * Therefore the image itself must
+     * start from the center of the viewport.
+     */
+
+    top: 50%;
+    left: 50%;
 
     width: 100%;
     height: 100%;
@@ -185,27 +184,39 @@ img {
     max-width: none;
     max-height: none;
 
-    top: 0;
-    left: 0;
+    /*
+     * Fill the entire viewport.
+     */
+    object-fit: cover;
 
-    object-fit: contain;
     object-position: center center;
 
+    /*
+     * Camera zoom happens around the
+     * center of the image.
+     */
     transform-origin: center center;
 
-    will-change: transform, opacity;
+    /*
+     * GPU/compositor optimization.
+     */
+    will-change:
+        transform,
+        opacity;
 
     user-select: none;
     pointer-events: none;
 
+    /*
+     * JavaScript controls the animation.
+     */
     transition: none;
 }
 
 
-
-/* =========================================================
+/* ============================================================
    BASE AFRICA MAP
-   ========================================================= */
+   ============================================================ */
 
 .base-map {
     z-index: 1;
@@ -213,9 +224,9 @@ img {
 }
 
 
-/* =========================================================
+/* ============================================================
    CAPE VERDE
-   ========================================================= */
+   ============================================================ */
 
 .cv-overlay {
     z-index: 2;
@@ -223,9 +234,9 @@ img {
 }
 
 
-/* =========================================================
+/* ============================================================
    SANTIAGO
-   ========================================================= */
+   ============================================================ */
 
 .santiago-overlay {
     z-index: 3;
@@ -233,13 +244,15 @@ img {
 }
 
 
-/* =========================================================
+/* ============================================================
    CINEMATIC DARK EDGE
-   ========================================================= */
+   ============================================================ */
 
 .map-viewport::after {
     content: "";
+
     position: absolute;
+
     inset: 0;
 
     pointer-events: none;
@@ -260,28 +273,25 @@ img {
    ============================================================ */
 
 .map-atmosphere {
+    position: absolute;
 
-  position: absolute;
+    inset: -20%;
 
-  inset: -20%;
+    z-index: 5;
 
-  z-index: 5;
+    pointer-events: none;
 
-  pointer-events: none;
+    opacity: 0;
 
-  opacity: 0;
+    background:
+        radial-gradient(
+            ellipse at center,
+            transparent 35%,
+            rgba(0, 0, 0, 0.12) 65%,
+            rgba(0, 0, 0, 0.5) 100%
+        );
 
-  background:
-
-    radial-gradient(
-      ellipse at center,
-      transparent 35%,
-      rgba(0, 0, 0, 0.12) 65%,
-      rgba(0, 0, 0, 0.5) 100%
-    );
-
-  will-change: opacity;
-
+    will-change: opacity;
 }
 
 
@@ -290,24 +300,21 @@ img {
    ============================================================ */
 
 .map-vignette {
+    position: absolute;
 
-  position: absolute;
+    inset: 0;
 
-  inset: 0;
+    z-index: 10;
 
-  z-index: 10;
+    pointer-events: none;
 
-  pointer-events: none;
-
-  background:
-
-    radial-gradient(
-      ellipse at center,
-      transparent 48%,
-      rgba(0, 0, 0, 0.15) 75%,
-      rgba(0, 0, 0, 0.55) 100%
-    );
-
+    background:
+        radial-gradient(
+            ellipse at center,
+            transparent 48%,
+            rgba(0, 0, 0, 0.15) 75%,
+            rgba(0, 0, 0, 0.55) 100%
+        );
 }
 
 
@@ -316,61 +323,65 @@ img {
    ============================================================ */
 
 .map-caption {
+    position: absolute;
 
-  position: absolute;
+    left: clamp(24px, 5vw, 80px);
+    bottom: clamp(35px, 8vh, 90px);
 
-  left: clamp(24px, 5vw, 80px);
+    z-index: 30;
 
-  bottom: clamp(35px, 8vh, 90px);
+    max-width: 430px;
 
-  z-index: 30;
+    pointer-events: none;
 
-  max-width: 430px;
-
-  pointer-events: none;
-
-  text-shadow:
-    0 2px 18px rgba(0, 0, 0, 0.7);
-
+    text-shadow:
+        0 2px 18px rgba(0, 0, 0, 0.7);
 }
-
 
 .caption-location {
+    margin-bottom: 9px;
 
-  margin-bottom: 9px;
+    font-size: 0.68rem;
 
-  font-size: 0.68rem;
+    font-weight: 700;
 
-  font-weight: 700;
+    letter-spacing: 0.18em;
 
-  letter-spacing: 0.18em;
-
-  color: var(--accent);
-
+    color: var(--accent);
 }
-
 
 .map-caption h2 {
+    font-size:
+        clamp(
+            2rem,
+            4vw,
+            4.2rem
+        );
 
-  font-size: clamp(2rem, 4vw, 4.2rem);
+    line-height: 0.95;
 
-  line-height: 0.95;
+    font-weight: 600;
 
-  font-weight: 600;
-
-  letter-spacing: -0.04em;
-
+    letter-spacing: -0.04em;
 }
 
-
 .map-caption p {
+    margin-top: 14px;
 
-  margin-top: 14px;
+    color:
+        rgba(
+            237,
+            244,
+            255,
+            0.72
+        );
 
-  color: rgba(237, 244, 255, 0.72);
-
-  font-size: clamp(0.85rem, 1vw, 1rem);
-
+    font-size:
+        clamp(
+            0.85rem,
+            1vw,
+            1rem
+        );
 }
 
 
@@ -379,66 +390,65 @@ img {
    ============================================================ */
 
 .scroll-indicator {
+    position: absolute;
 
-  position: absolute;
+    right: clamp(24px, 4vw, 70px);
+    bottom: clamp(35px, 7vh, 75px);
 
-  right: clamp(24px, 4vw, 70px);
+    z-index: 40;
 
-  bottom: clamp(35px, 7vh, 75px);
+    display: flex;
 
-  z-index: 40;
+    align-items: center;
 
-  display: flex;
+    gap: 15px;
 
-  align-items: center;
+    transform: rotate(-90deg);
 
-  gap: 15px;
+    transform-origin: right bottom;
 
-  transform: rotate(-90deg);
-
-  transform-origin: right bottom;
-
-  pointer-events: none;
-
+    pointer-events: none;
 }
-
 
 .scroll-label {
+    font-size: 0.58rem;
 
-  font-size: 0.58rem;
+    letter-spacing: 0.2em;
 
-  letter-spacing: 0.2em;
-
-  color: rgba(255,255,255,0.6);
-
+    color:
+        rgba(
+            255,
+            255,
+            255,
+            0.6
+        );
 }
-
 
 .scroll-line {
+    position: relative;
 
-  position: relative;
+    width: 100px;
+    height: 1px;
 
-  width: 100px;
-
-  height: 1px;
-
-  background: rgba(255,255,255,0.2);
-
+    background:
+        rgba(
+            255,
+            255,
+            255,
+            0.2
+        );
 }
 
-
 .scroll-line-progress {
+    position: absolute;
 
-  position: absolute;
+    left: 0;
+    top: 0;
 
-  left: 0;
-  top: 0;
+    width: 0%;
+    height: 1px;
 
-  width: 0%;
-  height: 1px;
-
-  background: var(--accent);
-
+    background: var(--accent);
 }
 
 
@@ -447,109 +457,105 @@ img {
    ============================================================ */
 
 .content-block {
+    position: relative;
 
-  position: relative;
+    min-height: 100vh;
 
-  min-height: 100vh;
+    padding:
+        160px
+        clamp(
+            20px,
+            7vw,
+            100px
+        );
 
-  padding:
-    160px
-    clamp(20px, 7vw, 100px);
+    display: flex;
 
-  display: flex;
+    align-items: center;
 
-  align-items: center;
-
-  justify-content: center;
-
+    justify-content: center;
 }
-
 
 .container {
+    width: 100%;
 
-  width: 100%;
-
-  max-width: var(--max-width);
-
+    max-width: var(--max-width);
 }
-
 
 .eyebrow {
+    display: block;
 
-  display: block;
+    margin-bottom: 18px;
 
-  margin-bottom: 18px;
+    color: var(--accent);
 
-  color: var(--accent);
+    font-size: 0.7rem;
 
-  font-size: 0.7rem;
+    font-weight: 700;
 
-  font-weight: 700;
-
-  letter-spacing: 0.18em;
-
+    letter-spacing: 0.18em;
 }
-
 
 .content-block h3 {
+    max-width: 700px;
 
-  max-width: 700px;
+    font-size:
+        clamp(
+            2.5rem,
+            6vw,
+            6rem
+        );
 
-  font-size: clamp(2.5rem, 6vw, 6rem);
+    line-height: 0.95;
 
-  line-height: 0.95;
-
-  letter-spacing: -0.05em;
-
+    letter-spacing: -0.05em;
 }
-
 
 .content-block p {
+    max-width: 600px;
 
-  max-width: 600px;
+    margin-top: 28px;
 
-  margin-top: 28px;
+    color: var(--muted);
 
-  color: var(--muted);
-
-  font-size: clamp(1rem, 1.5vw, 1.25rem);
-
+    font-size:
+        clamp(
+            1rem,
+            1.5vw,
+            1.25rem
+        );
 }
 
+
+/* ============================================================
+   CONTENT SECTION BACKGROUNDS
+   ============================================================ */
 
 .intro-block {
-
-  background:
-    linear-gradient(
-      180deg,
-      #07101d,
-      #0a1727
-    );
-
+    background:
+        linear-gradient(
+            180deg,
+            #07101d,
+            #0a1727
+        );
 }
-
 
 .cv-block {
-
-  background:
-    linear-gradient(
-      180deg,
-      #0a1727,
-      #0b1c2d
-    );
-
+    background:
+        linear-gradient(
+            180deg,
+            #0a1727,
+            #0b1c2d
+        );
 }
 
-
 .santiago-block {
-
-  background:
-    linear-gradient(
-      180deg,
-      #0b1c2d,
-      #07101d
-    );
-
+    background:
+        linear-gradient(
+            180deg,
+            #0b1c2d,
+            #07101d
+        );
 }
 
 
@@ -558,15 +564,13 @@ img {
    ============================================================ */
 
 .site-footer {
+    padding: 60px 20px;
 
-  padding: 60px 20px;
+    text-align: center;
 
-  text-align: center;
+    color: var(--muted);
 
-  color: var(--muted);
-
-  font-size: 0.8rem;
-
+    font-size: 0.8rem;
 }
 
 
@@ -576,61 +580,58 @@ img {
 
 @media (max-width: 800px) {
 
-  .site-header {
-
-    padding: 20px;
-
-  }
+    .site-header {
+        padding: 20px;
+    }
 
 
-  .map-journey {
-
-    height: 350vh;
-
-  }
+    .map-journey {
+        height: 350vh;
+    }
 
 
-  .map-layer {
+    /*
+     * DO NOT make the map 270% wide.
+     *
+     * JavaScript controls the zoom.
+     */
+    .map-layer {
+        top: 50%;
+        left: 50%;
 
-    width: 270%;
+        width: 100%;
+        height: 100%;
 
-  }
-
-
-  .map-caption {
-
-    left: 20px;
-
-    right: 20px;
-
-    bottom: 40px;
-
-  }
-
-
-  .map-caption h2 {
-
-    font-size: 2.5rem;
-
-  }
+        object-fit: cover;
+        object-position: center center;
+    }
 
 
-  .scroll-indicator {
+    .map-caption {
+        left: 20px;
+        right: 20px;
 
-    display: none;
+        bottom: 40px;
+    }
 
-  }
+
+    .map-caption h2 {
+        font-size: 2.5rem;
+    }
 
 
-  .content-block {
+    .scroll-indicator {
+        display: none;
+    }
 
-    min-height: 80vh;
 
-    padding:
-      100px
-      20px;
+    .content-block {
+        min-height: 80vh;
 
-  }
+        padding:
+            100px
+            20px;
+    }
 
 }
 
@@ -641,8 +642,8 @@ img {
 
 @media (prefers-reduced-motion: reduce) {
 
-  html {
-    scroll-behavior: auto;
-  }
+    html {
+        scroll-behavior: auto;
+    }
 
 }
