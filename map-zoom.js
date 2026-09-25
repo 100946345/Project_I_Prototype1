@@ -1,215 +1,1085 @@
-// map-zoom.js
-// Scroll-driven zoom: Africa -> Cape Verde -> Santiago
+```javascript
+/* ============================================================
+   PROJECT I
+   Cinematic Scroll Map Camera
+
+   Journey:
+
+   AFRICA
+      ↓
+   ATLANTIC
+      ↓
+   CAPE VERDE
+      ↓
+   SANTIAGO
+      ↓
+   DEEP ZOOM
+   ============================================================ */
+
 (function () {
-  // Debug flag (set to true to enable live logging)
-  let debugEnabled = true;
 
-  // Query elements (will warn if missing)
-  const mapStage = document.getElementById('mapStage');
-  const baseMap = document.getElementById('baseMap');
-  const cvOverlay = document.getElementById('cvOverlay');
-  const santiagoOverlay = document.getElementById('santiagoOverlay');
-  const mapTitle = document.getElementById('mapTitle');
+  "use strict";
 
-  const intro = document.getElementById('intro');
-  const cvInfo = document.getElementById('cv-info');
-  const santiagoInfo = document.getElementById('santiago-info');
 
-  if (!mapStage || !baseMap || !cvOverlay || !santiagoOverlay || !mapTitle) {
-    console.warn('map-zoom.js: missing one or more required map elements. Check IDs in HTML.');
+  /* ============================================================
+     ELEMENTS
+     ============================================================ */
+
+  const journey =
+    document.getElementById("mapJourney");
+
+  const viewport =
+    document.getElementById("mapViewport");
+
+  const baseMap =
+    document.getElementById("baseMap");
+
+  const cvOverlay =
+    document.getElementById("cvOverlay");
+
+  const santiagoOverlay =
+    document.getElementById("santiagoOverlay");
+
+  const atmosphere =
+    document.querySelector(".map-atmosphere");
+
+  const captionLocation =
+    document.getElementById("captionLocation");
+
+  const mapTitle =
+    document.getElementById("mapTitle");
+
+  const mapSubtitle =
+    document.getElementById("mapSubtitle");
+
+  const scrollProgress =
+    document.getElementById("scrollProgress");
+
+
+  if (
+    !journey ||
+    !viewport ||
+    !baseMap ||
+    !cvOverlay ||
+    !santiagoOverlay
+  ) {
+
+    console.warn(
+      "Project I: map elements are missing."
+    );
+
     return;
-  }
-  if (!intro || !cvInfo || !santiagoInfo) {
-    console.warn('map-zoom.js: missing one or more content sections (intro, cv-info, santiago-info).');
-    // continue — offsets will be guarded below
+
   }
 
-  // Utility: linear interpolation
-  function lerp(a, b, t) {
-    return a + (b - a) * t;
-  }
 
-  // Get normalized progress between two vertical positions
-  function progressBetween(start, end, y) {
-    if (typeof start !== 'number' || typeof end !== 'number') return 0;
-    if (y <= start) return 0;
-    if (y >= end) return 1;
-    return (y - start) / (end - start);
-  }
+  /* ============================================================
+     SETTINGS
+     ============================================================ */
 
-  // Offsets used as triggers
-  let offsets = {
-    stageTop: 0,
-    introTop: 0,
-    cvTop: 0,
-    santiagoTop: 0,
-    stageHeight: 0
+  const SETTINGS = {
+
+    /*
+      Overall zoom.
+
+      Change these if the final Santiago zoom
+      needs to be stronger or weaker.
+    */
+
+    startScale: 1.0,
+
+    atlanticScale: 1.18,
+
+    capeVerdeScale: 2.05,
+
+    santiagoScale: 4.0,
+
+
+    /*
+      Camera movement.
+
+      These values are percentages relative
+      to the center of the image.
+    */
+
+    startX: 0,
+    startY: 0,
+
+    atlanticX: -4,
+    atlanticY: -1,
+
+    capeVerdeX: -18,
+    capeVerdeY: -5,
+
+    santiagoX: -28,
+    santiagoY: -13,
+
+
+    /*
+      How much of the scroll journey is allocated
+      to each section.
+    */
+
+    africaEnd: 0.18,
+
+    atlanticEnd: 0.42,
+
+    capeVerdeEnd: 0.68,
+
+    santiagoEnd: 1.0
+
   };
 
-  function computeOffsets() {
-    const vh = window.innerHeight;
-    const stageRect = mapStage.getBoundingClientRect();
-    const stageTop = window.scrollY + stageRect.top;
 
-    // If any section is missing, use fallback positions spaced below the stage
-    const fallbackGap = vh * 0.9;
+  /* ============================================================
+     STATE
+     ============================================================ */
 
-    const introTopRaw = intro ? (intro.getBoundingClientRect().top + window.scrollY) : stageTop + fallbackGap;
-    const cvTopRaw = cvInfo ? (cvInfo.getBoundingClientRect().top + window.scrollY) : introTopRaw + fallbackGap;
-    const santiagoTopRaw = santiagoInfo ? (santiagoInfo.getBoundingClientRect().top + window.scrollY) : cvTopRaw + fallbackGap;
+  let targetProgress = 0;
 
-    // Expand the trigger window so transitions are slower and easier to see
-    offsets = {
-      stageTop,
-      introTop: introTopRaw - vh * 0.65,
-      cvTop: cvTopRaw + vh * 0.65,
-      santiagoTop: santiagoTopRaw + vh * 0.85,
-      stageHeight: stageRect.height
-    };
+  let currentProgress = 0;
+
+  let raf = null;
+
+  let lastScrollY = window.scrollY;
+
+  let initialized = false;
+
+
+  /* ============================================================
+     MATH
+     ============================================================ */
+
+  function clamp(value, min, max) {
+
+    return Math.min(
+      Math.max(value, min),
+      max
+    );
+
   }
 
-  // Apply transforms based on scroll
+
+  function lerp(a, b, t) {
+
+    return a + (b - a) * t;
+
+  }
+
+
+  /*
+    Smooth easing.
+
+    This gives the camera a cinematic acceleration
+    and deceleration rather than a robotic linear movement.
+  */
+
+  function easeInOut(t) {
+
+    t = clamp(t, 0, 1);
+
+    return t < 0.5
+
+      ? 4 * t * t * t
+
+      : 1 - Math.pow(-2 * t + 2, 3) / 2;
+
+  }
+
+
+  /*
+    Smoother interpolation for the actual camera.
+
+    This is intentionally slower than the scroll position.
+  */
+
+  function damp(current, target, lambda, deltaTime) {
+
+    return lerp(
+      current,
+      target,
+      1 - Math.exp(-lambda * deltaTime)
+    );
+
+  }
+
+
+  /*
+    Convert global progress into a 0-1 value
+    for an individual camera section.
+  */
+
+  function segmentProgress(
+    progress,
+    start,
+    end
+  ) {
+
+    if (progress <= start) return 0;
+
+    if (progress >= end) return 1;
+
+    return (
+      (progress - start) /
+      (end - start)
+    );
+
+  }
+
+
+  /* ============================================================
+     SCROLL PROGRESS
+     ============================================================ */
+
+  function calculateScrollProgress() {
+
+    const rect =
+      journey.getBoundingClientRect();
+
+    const totalScrollable =
+      rect.height - window.innerHeight;
+
+    if (totalScrollable <= 0) {
+
+      return 0;
+
+    }
+
+
+    /*
+      rect.top is negative once the user
+      begins scrolling through the journey.
+    */
+
+    const traveled =
+      clamp(
+        -rect.top,
+        0,
+        totalScrollable
+      );
+
+
+    return clamp(
+      traveled / totalScrollable,
+      0,
+      1
+    );
+
+  }
+
+
+  /* ============================================================
+     CAMERA PATH
+     ============================================================ */
+
+  function calculateCamera(progress) {
+
+    let scale;
+    let x;
+    let y;
+
+
+    /* ----------------------------------------------------------
+       1. AFRICA
+       ---------------------------------------------------------- */
+
+    if (
+      progress <=
+      SETTINGS.africaEnd
+    ) {
+
+      const p =
+        easeInOut(
+          segmentProgress(
+            progress,
+            0,
+            SETTINGS.africaEnd
+          )
+        );
+
+
+      scale =
+        lerp(
+          SETTINGS.startScale,
+          SETTINGS.atlanticScale,
+          p
+        );
+
+
+      x =
+        lerp(
+          SETTINGS.startX,
+          SETTINGS.atlanticX,
+          p
+        );
+
+
+      y =
+        lerp(
+          SETTINGS.startY,
+          SETTINGS.atlanticY,
+          p
+        );
+
+    }
+
+
+    /* ----------------------------------------------------------
+       2. ATLANTIC → CAPE VERDE
+       ---------------------------------------------------------- */
+
+    else if (
+      progress <=
+      SETTINGS.atlanticEnd
+    ) {
+
+      const p =
+        easeInOut(
+          segmentProgress(
+            progress,
+            SETTINGS.africaEnd,
+            SETTINGS.atlanticEnd
+          )
+        );
+
+
+      scale =
+        lerp(
+          SETTINGS.atlanticScale,
+          SETTINGS.capeVerdeScale,
+          p
+        );
+
+
+      x =
+        lerp(
+          SETTINGS.atlanticX,
+          SETTINGS.capeVerdeX,
+          p
+        );
+
+
+      y =
+        lerp(
+          SETTINGS.atlanticY,
+          SETTINGS.capeVerdeY,
+          p
+        );
+
+    }
+
+
+    /* ----------------------------------------------------------
+       3. CAPE VERDE → SANTIAGO
+       ---------------------------------------------------------- */
+
+    else if (
+      progress <=
+      SETTINGS.capeVerdeEnd
+    ) {
+
+      const p =
+        easeInOut(
+          segmentProgress(
+            progress,
+            SETTINGS.atlanticEnd,
+            SETTINGS.capeVerdeEnd
+          )
+        );
+
+
+      scale =
+        lerp(
+          SETTINGS.capeVerdeScale,
+          SETTINGS.santiagoScale,
+          p
+        );
+
+
+      x =
+        lerp(
+          SETTINGS.capeVerdeX,
+          SETTINGS.santiagoX,
+          p
+        );
+
+
+      y =
+        lerp(
+          SETTINGS.capeVerdeY,
+          SETTINGS.santiagoY,
+          p
+        );
+
+    }
+
+
+    /* ----------------------------------------------------------
+       4. FINAL SANTIAGO ZOOM
+       ---------------------------------------------------------- */
+
+    else {
+
+      const p =
+        easeInOut(
+          segmentProgress(
+            progress,
+            SETTINGS.capeVerdeEnd,
+            SETTINGS.santiagoEnd
+          )
+        );
+
+
+      /*
+        Continue moving slightly deeper into Santiago.
+
+        This is what makes the final part feel like
+        the camera is entering the island rather than
+        simply stopping at a fixed zoom level.
+      */
+
+      scale =
+        lerp(
+          SETTINGS.santiagoScale,
+          SETTINGS.santiagoScale * 1.18,
+          p
+        );
+
+
+      x =
+        lerp(
+          SETTINGS.santiagoX,
+          SETTINGS.santiagoX - 2,
+          p
+        );
+
+
+      y =
+        lerp(
+          SETTINGS.santiagoY,
+          SETTINGS.santiagoY - 1.5,
+          p
+        );
+
+    }
+
+
+    return {
+      scale,
+      x,
+      y
+    };
+
+  }
+
+
+  /* ============================================================
+     LAYER OPACITY
+     ============================================================ */
+
+  function calculateLayers(progress) {
+
+    /*
+      Cape Verde gradually appears during the Atlantic approach.
+    */
+
+    const cvStart = 0.12;
+    const cvEnd = 0.52;
+
+
+    let cvOpacity =
+      segmentProgress(
+        progress,
+        cvStart,
+        cvEnd
+      );
+
+
+    /*
+      Start Santiago very subtly before the actual
+      deep zoom so the transition feels continuous.
+    */
+
+    const santiagoStart = 0.46;
+    const santiagoEnd = 0.78;
+
+
+    let santiagoOpacity =
+      segmentProgress(
+        progress,
+        santiagoStart,
+        santiagoEnd
+      );
+
+
+    /*
+      Smooth the opacity curves.
+    */
+
+    cvOpacity =
+      easeInOut(cvOpacity);
+
+
+    santiagoOpacity =
+      easeInOut(santiagoOpacity);
+
+
+    return {
+
+      cvOpacity:
+        clamp(cvOpacity, 0, 1),
+
+      santiagoOpacity:
+        clamp(santiagoOpacity, 0, 1)
+
+    };
+
+  }
+
+
+  /* ============================================================
+     APPLY CAMERA
+     ============================================================ */
+
+  function applyCamera(
+    camera,
+    layers
+  ) {
+
+    /*
+      Main camera transform.
+
+      translate3d is used instead of top/left
+      so the browser can keep this mostly
+      on the compositor.
+    */
+
+    const transform =
+
+      "translate3d(" +
+      "-50%, -50%, 0) " +
+
+      "scale(" +
+      camera.scale +
+      ") " +
+
+      "translate3d(" +
+      camera.x +
+      "%, " +
+      camera.y +
+      "%, 0)";
+
+
+    baseMap.style.transform =
+      transform;
+
+
+    cvOverlay.style.transform =
+      transform;
+
+
+    /*
+      Santiago gets a tiny additional scale
+      during the final approach.
+    */
+
+    const santiagoScale =
+      camera.scale *
+      (
+        1 +
+        layers.santiagoOpacity * 0.08
+      );
+
+
+    santiagoOverlay.style.transform =
+
+      "translate3d(-50%, -50%, 0) " +
+
+      "scale(" +
+      santiagoScale +
+      ") " +
+
+      "translate3d(" +
+      camera.x +
+      "%, " +
+      camera.y +
+      "%, 0)";
+
+
+    /*
+      Layer opacity.
+    */
+
+    cvOverlay.style.opacity =
+      layers.cvOpacity;
+
+
+    santiagoOverlay.style.opacity =
+      layers.santiagoOpacity;
+
+
+    /*
+      During the deepest zoom,
+      increase the atmosphere slightly.
+    */
+
+    if (atmosphere) {
+
+      const atmosphereOpacity =
+        clamp(
+          (targetProgress - 0.62) * 1.5,
+          0,
+          0.32
+        );
+
+      atmosphere.style.opacity =
+        atmosphereOpacity;
+
+    }
+
+  }
+
+
+  /* ============================================================
+     CAPTION
+     ============================================================ */
+
+  function updateCaption(progress) {
+
+    if (
+      progress < 0.20
+    ) {
+
+      captionLocation.textContent =
+        "AFRICA";
+
+      mapTitle.textContent =
+        "Cape Verde";
+
+      mapSubtitle.textContent =
+        "A journey begins across the Atlantic";
+
+    }
+
+
+    else if (
+      progress < 0.48
+    ) {
+
+      captionLocation.textContent =
+        "ATLANTIC OCEAN";
+
+      mapTitle.textContent =
+        "Approaching Cape Verde";
+
+      mapSubtitle.textContent =
+        "The islands emerge from the Atlantic";
+
+    }
+
+
+    else if (
+      progress < 0.75
+    ) {
+
+      captionLocation.textContent =
+        "CABO VERDE";
+
+      mapTitle.textContent =
+        "Cape Verde";
+
+      mapSubtitle.textContent =
+        "The archipelago comes into view";
+
+    }
+
+
+    else {
+
+      captionLocation.textContent =
+        "SANTIAGO";
+
+      mapTitle.textContent =
+        "Santiago Island";
+
+      mapSubtitle.textContent =
+        "The journey arrives at the island";
+
+    }
+
+  }
+
+
+  /* ============================================================
+     ANIMATION LOOP
+     ============================================================ */
+
+  let previousTime = performance.now();
+
+
+  function animate(time) {
+
+    const delta =
+      Math.min(
+        (time - previousTime) / 1000,
+        0.05
+      );
+
+
+    previousTime = time;
+
+
+    /*
+      Damp the camera progress.
+
+      This creates inertia:
+      the camera follows the user's scroll
+      instead of snapping directly to it.
+    */
+
+    currentProgress =
+      damp(
+        currentProgress,
+        targetProgress,
+        7.5,
+        delta
+      );
+
+
+    const camera =
+      calculateCamera(
+        currentProgress
+      );
+
+
+    const layers =
+      calculateLayers(
+        currentProgress
+      );
+
+
+    applyCamera(
+      camera,
+      layers
+    );
+
+
+    updateCaption(
+      currentProgress
+    );
+
+
+    /*
+      Progress bar follows the actual
+      scroll position.
+    */
+
+    if (scrollProgress) {
+
+      scrollProgress.style.width =
+        (
+          currentProgress * 100
+        ) + "%";
+
+    }
+
+
+    raf =
+      requestAnimationFrame(
+        animate
+      );
+
+  }
+
+
+  /* ============================================================
+     SCROLL HANDLER
+     ============================================================ */
+
   function onScroll() {
-    // Use a center reference slightly below center to make transitions start earlier visually
-    const y = window.scrollY + window.innerHeight * 0.5;
 
-    const p1 = progressBetween(offsets.introTop, offsets.cvTop, y);       // Africa -> Cape Verde
-    const p2 = progressBetween(offsets.cvTop, offsets.santiagoTop, y);    // Cape Verde -> Santiago
+    targetProgress =
+      calculateScrollProgress();
 
-    // Base map scale: 1 -> 1.9 during p1, then 1.9 -> 3.2 during p2
-    let baseScale = 1;
-    if (p1 > 0 && p1 <= 1) {
-      baseScale = lerp(1, 1.9, p1);
-    } else if (p2 > 0) {
-      baseScale = lerp(1.9, 3.2, p2);
+
+    /*
+      Keep track of direction.
+      This can be useful later for entering
+      and leaving content sections.
+    */
+
+    const currentY =
+      window.scrollY;
+
+
+    const direction =
+      currentY > lastScrollY
+        ? 1
+        : -1;
+
+
+    document.documentElement
+      .style
+      .setProperty(
+        "--scroll-direction",
+        direction
+      );
+
+
+    lastScrollY =
+      currentY;
+
+  }
+
+
+  /* ============================================================
+     RESIZE
+     ============================================================ */
+
+  function onResize() {
+
+    targetProgress =
+      calculateScrollProgress();
+
+  }
+
+
+  /* ============================================================
+     IMAGE LOADING
+     ============================================================ */
+
+  function waitForImages() {
+
+    const images = [
+
+      baseMap,
+      cvOverlay,
+      santiagoOverlay
+
+    ];
+
+
+    return Promise.all(
+
+      images.map(
+        image => {
+
+          if (
+            image.complete
+          ) {
+
+            return Promise.resolve();
+
+          }
+
+
+          return new Promise(
+            resolve => {
+
+              image.addEventListener(
+                "load",
+                resolve,
+                { once: true }
+              );
+
+
+              image.addEventListener(
+                "error",
+                resolve,
+                { once: true }
+              );
+
+            }
+          );
+
+        }
+      )
+
+    );
+
+  }
+
+
+  /* ============================================================
+     RESIZE OBSERVER
+     ============================================================ */
+
+  function setupResizeObserver() {
+
+    if (
+      !("ResizeObserver" in window)
+    ) {
+
+      return;
+
     }
 
-    // Translate to focus on Cape Verde / Santiago
-    // These are percent offsets relative to the image; tweak if your images need different centering
-    let tx = 0, ty = 0;
-    if (p1 > 0) {
-      tx = lerp(0, -22, p1); // move left
-      ty = lerp(0, -6, p1);  // move up slightly
-    }
-    if (p2 > 0) {
-      tx = lerp(-22, -28, p2);
-      ty = lerp(-6, -12, p2);
-    }
 
-    // Use translate3d for smoother GPU-accelerated transforms
-    const baseTransform = `translate3d(-50%,-50%,0) scale(${baseScale}) translate3d(${tx}%, ${ty}%, 0)`;
-    baseMap.style.transform = baseTransform;
+    const observer =
+      new ResizeObserver(
+        () => {
 
-    // CV overlay fades in during p1
-    const cvOpacity = Math.min(1, Math.max(0, p1 * 1.05));
-    cvOverlay.style.opacity = cvOpacity.toString();
-    cvOverlay.style.transform = baseTransform;
+          onResize();
 
-    // Santiago overlay fades in during p2 and scales slightly more
-    const sOp = Math.max(0, p2);
-    santiagoOverlay.style.opacity = Math.min(1, sOp * 1.05).toString();
-    const sScale = baseScale * (1 + sOp * 0.12);
-    const sTransform = `translate3d(-50%,-50%,0) scale(${sScale}) translate3d(${tx}%, ${ty}%, 0)`;
-    santiagoOverlay.style.transform = sTransform;
-
-    // Update caption text depending on progress
-    if (p2 > 0.6) {
-      mapTitle.textContent = 'Santiago Island';
-    } else if (p1 > 0.4) {
-      mapTitle.textContent = 'Cape Verde';
-    } else {
-      mapTitle.textContent = 'Africa — Cape Verde';
-    }
-
-    // Debug logging (throttled by rAF via handleScroll)
-    if (debugEnabled) {
-      // Keep logs concise
-      console.log(
-        '[map-debug]',
-        'y:', Math.round(y),
-        'p1:', p1.toFixed(2),
-        'p2:', p2.toFixed(2),
-        'offsets:', {
-          introTop: Math.round(offsets.introTop),
-          cvTop: Math.round(offsets.cvTop),
-          santiagoTop: Math.round(offsets.santiagoTop)
         }
       );
-    }
+
+
+    observer.observe(
+      viewport
+    );
+
+
+    observer.observe(
+      journey
+    );
+
   }
 
-  // rAF throttle
-  let ticking = false;
-  function handleScroll() {
-    if (!ticking) {
-      window.requestAnimationFrame(() => {
-        onScroll();
-        ticking = false;
-      });
-      ticking = true;
-    }
-  }
 
-  // Initialize after images and DOM are ready
-  async function waitForImages(selector) {
-    const imgs = Array.from(document.querySelectorAll(selector));
-    const promises = imgs.map(img => {
-      if (img.complete) return Promise.resolve();
-      return new Promise(resolve => {
-        img.addEventListener('load', resolve, { once: true });
-        img.addEventListener('error', resolve, { once: true });
-      });
-    });
-    return Promise.all(promises);
-  }
+  /* ============================================================
+     INITIALIZATION
+     ============================================================ */
 
   async function init() {
-    // Wait for map-layer images to load so sizes are accurate
-    await waitForImages('.map-layer');
 
-    // Compute offsets and render initial state
-    computeOffsets();
+    await waitForImages();
+
+
+    /*
+      Set initial state.
+    */
+
+    targetProgress =
+      calculateScrollProgress();
+
+
+    currentProgress =
+      targetProgress;
+
+
     onScroll();
 
-    // Events
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    window.addEventListener('resize', () => {
-      computeOffsets();
-      onScroll();
-    });
 
-    // If content changes dynamically, observe size changes on the stage and recompute
-    if ('ResizeObserver' in window) {
-      const ro = new ResizeObserver(() => {
-        computeOffsets();
-        onScroll();
-      });
-      ro.observe(mapStage);
+    /*
+      Scroll listener.
+
+      Passive = better browser scrolling performance.
+    */
+
+    window.addEventListener(
+      "scroll",
+      onScroll,
+      {
+        passive: true
+      }
+    );
+
+
+    window.addEventListener(
+      "resize",
+      onResize,
+      {
+        passive: true
+      }
+    );
+
+
+    setupResizeObserver();
+
+
+    /*
+      Start render loop.
+    */
+
+    if (!raf) {
+
+      raf =
+        requestAnimationFrame(
+          animate
+        );
+
     }
 
-    // Expose debug helpers to console for easy toggling
-    window.enableMapDebug = function () {
-      debugEnabled = true;
-      console.log('map-zoom debug: enabled');
-    };
-    window.disableMapDebug = function () {
-      debugEnabled = false;
-      console.log('map-zoom debug: disabled');
-    };
-    window.debugOffsets = function () {
-      computeOffsets();
-      console.log('offsets', offsets);
-      const y = window.scrollY + window.innerHeight * 0.5;
-      console.log('y', Math.round(y), 'p1', progressBetween(offsets.introTop, offsets.cvTop, y), 'p2', progressBetween(offsets.cvTop, offsets.santiagoTop, y));
-    };
+
+    initialized = true;
+
+
+    console.log(
+      "Project I — cinematic map initialized."
+    );
+
   }
 
-  // Start when DOM is ready (script tag uses defer in HTML)
-  if (document.readyState === 'complete' || document.readyState === 'interactive') {
-    init().catch(err => console.error('map-zoom init error:', err));
-  } else {
-    window.addEventListener('DOMContentLoaded', () => {
-      init().catch(err => console.error('map-zoom init error:', err));
-    });
+
+  /* ============================================================
+     DEBUG HELPERS
+     ============================================================ */
+
+  window.mapCameraDebug = {
+
+    getProgress() {
+
+      return {
+
+        target:
+          targetProgress,
+
+        current:
+          currentProgress,
+
+        camera:
+          calculateCamera(
+            currentProgress
+          ),
+
+        layers:
+          calculateLayers(
+            currentProgress
+          )
+
+      };
+
+    },
+
+
+    goTo(progress) {
+
+      targetProgress =
+        clamp(
+          progress,
+          0,
+          1
+        );
+
+    }
+
+  };
+
+
+  /* ============================================================
+     START
+     ============================================================ */
+
+  if (
+    document.readyState ===
+    "loading"
+  ) {
+
+    document.addEventListener(
+      "DOMContentLoaded",
+      init,
+      { once: true }
+    );
+
   }
+
+  else {
+
+    init();
+
+  }
+
+
 })();
+```

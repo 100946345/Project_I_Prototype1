@@ -1,70 +1,193 @@
+
 <!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Cabo Verde — Scroll Zoom Demo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title>Cabo Verde — Scroll Journey</title>
+
   <link rel="stylesheet" href="styles.css" />
 </head>
+
 <body>
+
   <header class="site-header">
     <div class="brand">
       <h1>Amilcar Cabral - MorabezaGuide</h1>
-      <p class="subtitle">Cabo Verde — Interactive Map Demo</p>
+      <p class="subtitle">Cabo Verde — Interactive Map Journey</p>
     </div>
   </header>
 
-  <main role="main">
-    <!-- Hero / Map stage -->
-    <section class="map-stage" id="mapStage" aria-label="Interactive map showing Africa and Cape Verde">
-      <div class="map-viewport">
-        <!-- Base map (Africa) -->
-        <img src="assets/africa-map.jpg" alt="Map of Africa with Cape Verde" class="map-layer base-map" id="baseMap" />
+  <main>
 
-        <!-- Cape Verde overlay (transparent PNG with CV highlighted) -->
-        <img src="assets/cape-verde-overlay.png" alt="" aria-hidden="true" class="map-layer overlay overlay-cv" id="cvOverlay" />
+    <!--
+      ============================================================
+      MAP JOURNEY
+      The height of this section determines how much scroll
+      distance is available for the camera animation.
+      ============================================================
+    -->
 
-        <!-- Santiago island overlay (transparent PNG zoomed to Santiago) -->
-        <img src="assets/santiago-overlay.png" alt="" aria-hidden="true" class="map-layer overlay overlay-santiago" id="santiagoOverlay" />
+    <section
+      class="map-journey"
+      id="mapJourney"
+      aria-label="Interactive journey from Africa to Santiago Island"
+    >
+
+      <div class="map-sticky">
+
+        <div class="map-viewport" id="mapViewport">
+
+          <!-- Subtle cinematic vignette -->
+          <div class="map-vignette"></div>
+
+          <!--
+            BASE MAP
+            Africa / Atlantic / Cape Verde
+          -->
+          <img
+            src="assets/africa-map.jpg"
+            alt="Map of Africa and Cape Verde"
+            class="map-layer base-map"
+            id="baseMap"
+          />
+
+          <!--
+            CAPE VERDE
+            Transparent overlay.
+          -->
+          <img
+            src="assets/cape-verde-overlay.png"
+            alt=""
+            aria-hidden="true"
+            class="map-layer cv-overlay"
+            id="cvOverlay"
+          />
+
+          <!--
+            SANTIAGO
+            Transparent overlay focused on Santiago Island.
+          -->
+          <img
+            src="assets/santiago-overlay.png"
+            alt=""
+            aria-hidden="true"
+            class="map-layer santiago-overlay"
+            id="santiagoOverlay"
+          />
+
+          <!-- Soft focus layer used during deep zoom -->
+          <div class="map-atmosphere"></div>
+
+        </div>
+
+        <!--
+          ========================================================
+          CAMERA CAPTION
+          ========================================================
+        -->
+
+        <div class="map-caption" id="mapCaption">
+
+          <div class="caption-location" id="captionLocation">
+            AFRICA
+          </div>
+
+          <h2 id="mapTitle">
+            Cape Verde
+          </h2>
+
+          <p id="mapSubtitle">
+            A journey across the Atlantic
+          </p>
+
+        </div>
+
+        <!-- Scroll progress indicator -->
+
+        <div class="scroll-indicator" id="scrollIndicator">
+
+          <span class="scroll-label">
+            SCROLL TO EXPLORE
+          </span>
+
+          <span class="scroll-line">
+            <span class="scroll-line-progress" id="scrollProgress"></span>
+          </span>
+
+        </div>
+
       </div>
 
-      <div class="map-caption">
-        <h2 id="mapTitle">Africa — Cape Verde</h2>
-        <p id="mapSubtitle">Santiago Island</p>
-      </div>
     </section>
 
-    <!-- Spacer added immediately after the map to guarantee scroll room -->
-    <section class="scroll-spacer" aria-hidden="true"></section>
 
-    <!-- Content sections to create scroll space and trigger animations -->
-    <section class="content-block" id="intro">
+    <!-- ========================================================
+         CONTENT
+         ======================================================== -->
+
+    <section class="content-block intro-block" id="intro">
+
       <div class="container">
-        <h3>Welcome</h3>
-        <p>Introductory content goes here.</p>
+
+        <span class="eyebrow">01 — THE JOURNEY</span>
+
+        <h3>Welcome to Cabo Verde</h3>
+
+        <p>
+          A journey across the Atlantic toward the islands of Cabo Verde.
+        </p>
+
       </div>
+
     </section>
 
-    <section class="content-block" id="cv-info">
+
+    <section class="content-block cv-block" id="cv-info">
+
       <div class="container">
+
+        <span class="eyebrow">02 — THE ARCHIPELAGO</span>
+
         <h3>Cape Verde</h3>
-        <p>Information about Cape Verde.</p>
+
+        <p>
+          The camera continues its journey toward the islands,
+          gradually revealing the landscape in greater detail.
+        </p>
+
       </div>
+
     </section>
 
-    <section class="content-block" id="santiago-info">
+
+    <section class="content-block santiago-block" id="santiago-info">
+
       <div class="container">
+
+        <span class="eyebrow">03 — THE ISLAND</span>
+
         <h3>Santiago Island</h3>
-        <p>Details about Santiago.</p>
+
+        <p>
+          The journey ends with Santiago filling the map,
+          ready for the next chapter of the story.
+        </p>
+
       </div>
+
     </section>
+
 
     <footer class="site-footer">
-      <p>demo code.</p>
+      <p>Project I — Interactive Map Prototype</p>
     </footer>
+
   </main>
 
-  <!-- Defer script so DOM elements exist before the JS runs -->
+
   <script src="map-zoom.js" defer></script>
+
 </body>
 </html>
