@@ -164,51 +164,19 @@ img {
    ============================================================ */
 
 .map-viewport {
-
-  position: absolute;
-
-  inset: 0;
-
-  overflow: hidden;
-
-  background: #071321;
-
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
 }
 
-
-/* ============================================================
-   MAP LAYERS
-   ============================================================ */
-
 .map-layer {
-
-  position: absolute;
-
-  top: 50%;
-  left: 50%;
-
-  /*
-    IMPORTANT:
-    All map layers share the exact same transform origin.
-  */
-
-  transform-origin: center center;
-
-  width: 200%;
-
-  max-width: none;
-
-  height: auto;
-
-  pointer-events: none;
-
-  user-select: none;
-
-  will-change:
-    transform,
-    opacity,
-    filter;
-
+    position: absolute;
+    width: auto;
+    height: 100%;
+    max-width: none;
+    top: 50%;
+    left: 50%;
+    transform-origin: center center;
 }
 
 
